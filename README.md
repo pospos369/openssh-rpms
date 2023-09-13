@@ -1,57 +1,43 @@
-# OpenSSH RPMs for old CentOS
+# 在CentOS7系统环境编译最新版本 OpenSSH 并安装升级示例
 
-For some reasons I have to maintain OpenSSH up to date for CentOSs that are no longer have supports.
-
-This openssh package has OpenSSL statically linked.
-
-## Current Version:
-
-- OpenSSH 9.4p1
-- OpenSSL 3.0.10
-
-The script reads file `version.env` for actual verion definitions.
-
-## Supported CentOS:
-
-- CentOS 5
-- CentOS 6
-- CentOS 7
-
-## Build Requirements:
-
-```
+## 1、安装编译环境
+```shell
 yum groupinstall -y "Development Tools"
+
 yum install -y imake rpm-build pam-devel krb5-devel zlib-devel libXt-devel libX11-devel gtk2-devel
 ```
-### Note for CentOS 5:
+当输出 Complete! 后完成安装。
 
-- Perl 5.10+ is needed (just `./configure.gnu && make && make install`)
-- `gcc44` is prefered
-
-## Usage
-
+## 2、克隆 OpenSSH 编译 rpm 包项目
+```shell
+git clone https://github.com/ling218/openssh-rpms
 ```
-# Edit version.env file if you want a specific version of openssh/openssl combination (or maybe I havn't updated to the latest).
 
-# this script try to download source packages.
-# if any error come up, just manally put the source tar file into the `downloads` dir.
+## 3、编译 OpenSSH，安装 OpenSSH
+```shell
+# 切换到打包rpm项目目录下
+cd openssh-rpms
+
+# 执行脚本，下载需要编译安装的源码
 ./pullsrc.sh
 
-# just run the script to build RPMs. 
-# For CentOS 5, the rpmbuild didn't set the variable of `.el`, you may need to run the script by `./compile.sh el5`
+# 执行脚本，开始编译
 ./compile.sh
+
+# 查看编译结果
+ls -l el7/RPMS/x86_64/
+```
+## 4、安装升级 OpenSSH
+```shell
+# 本机升级OpenSSH版本
+rpm -Uvh el7/RPMS/x86_64/*.rpm
+
+# 删除本机现有的密钥
+rm -rf /etc/ssh/ssh_host_*
+
+# 重启sshd服务
+systemctl restart sshd
 ```
 
-## Security
 
-As OLD systems that are still on production, TOP security is hardly the first concern, while compatibility is.
-
-This package provede the following options in `/etc/ssh/sshd_config` to act like the triditional version sshd.
-
-```
-PubkeyAcceptedAlgorithms +ssh-rsa
-UsePAM yes
-PermitRootLogin yes
-UseDNS no
-```
 
