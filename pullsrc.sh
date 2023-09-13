@@ -20,7 +20,7 @@ arg1="${1:-}"
 # allow command fail:
 # fail_command || true
 
-source version.env	
+source ./version.env	
 
 # OPENSSHMIR=https://mirrors.aliyun.com/openssh/portable
 OPENSSHMIR=https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable
@@ -31,16 +31,16 @@ mkdir -p downloads
 pushd downloads
 if [[ ! -f $OPENSSLSRC ]]; then
   echo "Get:" $OPENSSLMIR/$OPENSSLSRC
-  wget $OPENSSLMIR/$OPENSSLSRC
+  wget --no-check-certificate $OPENSSLMIR/$OPENSSLSRC
 fi
 
 if [[ ! -f $OPENSSHSRC  ]]; then
   echo Get: $OPENSSHMIR/$OPENSSHSRC
-  wget $OPENSSHMIR/$OPENSSHSRC
+  wget --no-check-certificate $OPENSSHMIR/$OPENSSHSRC
 fi
 
 if [[ ! -f $ASKPASSSRC  ]]; then
   echo Get: $ASKPASSMIR/$ASKPASSSRC
-  wget $ASKPASSMIR/$ASKPASSSRC
+  wget --no-check-certificate $ASKPASSMIR/$ASKPASSSRC
 fi
 
