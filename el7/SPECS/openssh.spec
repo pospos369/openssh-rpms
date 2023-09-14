@@ -303,6 +303,7 @@ echo -e 'PubkeyAcceptedAlgorithms +ssh-rsa\nUsePAM yes\nPermitRootLogin yes\nUse
 install -d $RPM_BUILD_ROOT/etc/pam.d/
 install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
 install -d $RPM_BUILD_ROOT%{_libexecdir}/openssh
+install -m755 contrib/ssh-copy-id $RPM_BUILD_ROOT/usr/bin/ssh-copy-id
 install -m644 %{SOURCE2}     $RPM_BUILD_ROOT/etc/pam.d/sshd
 install -m755 contrib/redhat/sshd.init $RPM_BUILD_ROOT/etc/rc.d/init.d/sshd
 
@@ -385,6 +386,7 @@ fi
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/moduli
 %if ! %{rescue}
 %attr(0755,root,root) %{_bindir}/ssh-keygen
+%attr(0755,root,root) %{_bindir}/ssh-copy-id
 %attr(0644,root,root) %{_mandir}/man1/ssh-keygen.1*
 %attr(0755,root,root) %dir %{_libexecdir}/openssh
 %attr(4711,root,root) %{_libexecdir}/openssh/ssh-keysign
