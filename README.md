@@ -10,7 +10,7 @@ yum install -y imake rpm-build pam-devel krb5-devel zlib-devel libXt-devel libX1
 
 ## 2、克隆 OpenSSH 编译 rpm 包项目
 ```shell
-git clone github.com/pospos369/openssh-rpms
+git clone htps://github.com/pospos369/openssh-rpms
 ```
 
 ## 3、编译 OpenSSH，安装 OpenSSH
