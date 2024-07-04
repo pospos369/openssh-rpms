@@ -1,5 +1,5 @@
-%{?!opensslver: %global opensslver 3.3.1}
-%{?!opensshver: %global opensshver 9.8p1}
+%{?!opensslver: %global opensslver 1.1.1s}
+%{?!opensshver: %global opensshver 9.1p1}
 
 %define static_openssl 1
 
@@ -101,14 +101,18 @@ Source2: sshd.pam.el9
 %if ! %{no_build_openssl}
 Source3: https://www.openssl.org/source/openssl-%{opensslver}.tar.gz
 %endif
+Source4: sshd.service
+Source5: sshd.socket
+Source6: sshd@.service
+Source7: sshd-keygen.target
+Source8: sshd-keygen@.service
+
 License: BSD
 Group: Applications/Internet
 BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
 Obsoletes: ssh
 %if %{build6x}
 PreReq: initscripts >= 5.00
-%else
-Requires: initscripts >= 5.20
 %endif
 BuildRequires: perl
 #%if %{compat_openssl}
@@ -152,7 +156,7 @@ Obsoletes: ssh-clients
 Summary: The OpenSSH server daemon.
 Group: System Environment/Daemons
 Obsoletes: ssh-server
-Requires: openssh = %{version}-%{release}, chkconfig >= 0.9
+Requires: openssh = %{version}-%{release}
 %if ! %{build6x}
 Requires: /etc/pam.d/system-auth
 %endif
@@ -297,15 +301,19 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p -m755 $RPM_BUILD_ROOT%{_sysconfdir}/ssh
 mkdir -p -m755 $RPM_BUILD_ROOT%{_libexecdir}/openssh
 mkdir -p -m755 $RPM_BUILD_ROOT%{_var}/empty/sshd
+mkdir -p -m755 $RPM_BUILD_ROOT%{_unitdir}
 
 make install DESTDIR=$RPM_BUILD_ROOT
 echo -e 'PubkeyAcceptedAlgorithms +ssh-rsa\nUsePAM yes\nPermitRootLogin yes\nUseDNS no' >> $RPM_BUILD_ROOT/etc/ssh/sshd_config
 install -d $RPM_BUILD_ROOT/etc/pam.d/
-install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
 install -d $RPM_BUILD_ROOT%{_libexecdir}/openssh
 install -m644 %{SOURCE2}     $RPM_BUILD_ROOT/etc/pam.d/sshd
-install -m755 contrib/redhat/sshd.init $RPM_BUILD_ROOT/etc/rc.d/init.d/sshd
 install -m755 contrib/ssh-copy-id $RPM_BUILD_ROOT/usr/bin/ssh-copy-id
+install -m644 %{SOURCE4} $RPM_BUILD_ROOT/usr/lib/systemd/system/sshd.service
+install -m644 %{SOURCE5} $RPM_BUILD_ROOT/usr/lib/systemd/system/sshd.socket
+install -m644 %{SOURCE6} $RPM_BUILD_ROOT/usr/lib/systemd/system/sshd@.service
+install -m644 %{SOURCE7} $RPM_BUILD_ROOT/usr/lib/systemd/system/sshd-keygen.target
+install -m644 %{SOURCE8} $RPM_BUILD_ROOT/usr/lib/systemd/system/sshd-keygen@.service
 
 %if ! %{no_x11_askpass}
 install x11-ssh-askpass-%{aversion}/x11-ssh-askpass $RPM_BUILD_ROOT%{_libexecdir}/openssh/x11-ssh-askpass
@@ -352,10 +360,10 @@ fi
 
 %triggerpostun server -- ssh-server
 if [ "$1" != 0 ] ; then
-	/sbin/chkconfig --add sshd
+	systemctl enable sshd.service
 	if test -f /var/run/sshd.restart ; then
 		rm -f /var/run/sshd.restart
-		/sbin/service sshd start > /dev/null 2>&1 || :
+		systemctl start sshd.service > /dev/null 2>&1 || :
 	fi
 fi
 
@@ -365,16 +373,16 @@ fi
 	-g sshd -M -r sshd 2>/dev/null || :
 
 %post server
-/sbin/chkconfig --add sshd
+systemctl enable sshd.service
 
 %postun server
-/sbin/service sshd condrestart > /dev/null 2>&1 || :
+systemctl restart sshd.service > /dev/null 2>&1 || :
 
 %preun server
 if [ "$1" = 0 ]
 then
-	/sbin/service sshd stop > /dev/null 2>&1 || :
-	/sbin/chkconfig --del sshd
+	systemctl stop sshd.service > /dev/null 2>&1 || :
+	systemctl disable sshd.service
 fi
 
 %files
@@ -432,7 +440,11 @@ fi
 %attr(0755,root,root) %dir %{_sysconfdir}/ssh
 %attr(0600,root,root) %config(noreplace) %{_sysconfdir}/ssh/sshd_config
 %attr(0600,root,root) %config(noreplace) /etc/pam.d/sshd
-%attr(0755,root,root) %config /etc/rc.d/init.d/sshd
+%attr(0644,root,root) %{_unitdir}/sshd.service
+%attr(0644,root,root) %{_unitdir}/sshd.socket
+%attr(0644,root,root) %{_unitdir}/sshd@.service
+%attr(0644,root,root) %{_unitdir}/sshd-keygen.target
+%attr(0644,root,root) %{_unitdir}/sshd-keygen@.service
 %endif
 
 %if ! %{no_x11_askpass}
