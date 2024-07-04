@@ -4,7 +4,7 @@
 ```shell
 yum groupinstall -y "Development Tools"
 
-yum install -y imake rpm-build pam-devel krb5-devel zlib-devel libXt-devel libX11-devel gtk2-devel
+yum install -y imake rpm-build pam-devel krb5-devel zlib-devel libXt-devel libX11-devel gtk2-devel perl-CPAN perl-IPC-Cmd
 ```
 当输出 Complete! 后完成安装。
 
