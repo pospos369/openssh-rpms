@@ -23,6 +23,12 @@ rpmtopdir="${1:-}"
 if [[ -z $rpmtopdir ]]; then
     VAREL=$(rpm --eval '%{?dist}')
     case $VAREL in
+        .el9)
+            rpmtopdir=el9
+            ;;
+        .el8)
+            rpmtopdir=el8
+            ;;
         .el7)
             rpmtopdir=el7
             ;;
