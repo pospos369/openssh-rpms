@@ -368,6 +368,7 @@ if [ "$1" != 0 ] ; then
 fi
 
 %pre server
+sed -i '/GSSAPIKexAlgorithms/ {/^#/! s/^\s*\(GSSAPIKexAlgorithms\)/# \1/}' /etc/ssh/sshd_config
 %{_sbindir}/groupadd -r -g %{sshd_gid} sshd 2>/dev/null || :
 %{_sbindir}/useradd -d /var/empty/sshd -s /bin/false -u %{sshd_uid} \
 	-g sshd -M -r sshd 2>/dev/null || :
