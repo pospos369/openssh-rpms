@@ -54,10 +54,11 @@ if [[ -z $rpmtopdir ]]; then
                   echo -e "\n"
                   exit 1
                fi
-            rpmtopdir=oe
+               rpmtopdir=oe
+            else
+               echo "rpm dist undefined, please specify: el5/el6/el7/el8/el9/openEuler/Kylin V10"
+               exit 1
             fi
-            echo "rpm dist undefined, please specify: el5/el6/el7/el8/el9/openEuler/Kylin V10"
-            exit 1
             ;;
     esac
 fi
