@@ -363,12 +363,12 @@ if [ "$1" != 0 ] ; then
 	systemctl enable sshd.service
 	if test -f /var/run/sshd.restart ; then
 		rm -f /var/run/sshd.restart
-		sed -i '/GSSAPIKexAlgorithms/ {/^#/! s/^\s*\(GSSAPIKexAlgorithms\)/# \1/}' /etc/ssh/sshd_config
 		systemctl start sshd.service > /dev/null 2>&1 || :
 	fi
 fi
 
 %pre server
+sed -i '/GSSAPIKexAlgorithms/ {/^#/! s/^\s*\(GSSAPIKexAlgorithms\)/# \1/}' /etc/ssh/sshd_config
 %{_sbindir}/groupadd -r -g %{sshd_gid} sshd 2>/dev/null || :
 %{_sbindir}/useradd -d /var/empty/sshd -s /bin/false -u %{sshd_uid} \
 	-g sshd -M -r sshd 2>/dev/null || :
