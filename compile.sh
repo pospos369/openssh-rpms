@@ -23,6 +23,9 @@ rpmtopdir="${1:-}"
 if [[ -z $rpmtopdir ]]; then
     VAREL=$(rpm --eval '%{?dist}')
     case $VAREL in
+        .ky10)
+            rpmtopdir=ky10
+            ;;
         .el9)
             rpmtopdir=el9
             ;;
@@ -43,16 +46,25 @@ if [[ -z $rpmtopdir ]]; then
             fi
             ;;
         *)
-            echo "rpm dist undefined, please specify: el5 el6 el7"
+            if [[ -e /etc/openEuler-release ]] ; then
+               openeuler_version=`cat /etc/openEuler-release | sed -r 's/.* ([0-9]+)\..*/\1/'`
+               if [[ $openeuler_version -lt 20 || $openeuler_version -gt 22 ]] ; then
+                  echo -e `date +%Y-%m-%d_%H:%M:%S` $color_R"ERROR"$color_0 "当前操作系统版本可能不被支持，脚本退出. . ."
+                  sleep 0.25
+                  echo -e "\n"
+                  exit 1
+               fi
+            rpmtopdir=oe
+            fi
+            echo "rpm dist undefined, please specify: el5/el6/el7/el8/el9/openEuler/Kylin V10"
             exit 1
             ;;
     esac
 fi
 
-
 if [[ ! -d $rpmtopdir ]]; then 
-  echo "only work in el5/el6/el7"
-  echo "eg: ${0} el7"
+  echo "only work in el5/el6/el7/el8/el9/openEuler/Kylin V10"
+  echo "eg: ${0} $rpmtopdir"
   exit 1
 fi
 
